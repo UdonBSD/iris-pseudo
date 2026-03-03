@@ -1,29 +1,25 @@
-install(options: InstallOptions):
-	install_packages = options.packages;
-	verbose = options.verbose;
+install(options):
 
-	repositories = "/etc/iris/repos.toml"
-	
-	libiris.packages.download(
-		packages: install_packages,
-		repository_file: repositories,
-		download_callback: download_callback,
-	);
-	
+    txn = libiris.transaction.begin()
 
-	new_generation = libiris.generation.new(
-		old_generation: iris.generation.get_current(),
-	);
+    plan = txn.plan_install(
+        packages: options.packages
+    )
 
-	libiris.packages.install(
-		target_generation: new_generation,
-		packages: install_packages,
-		install_callback: install_callback,
-	);
+    txn.download(plan, callback=download_callback)
 
-	libiris.generation.switch(
-		generation: new_generation,
-	);
+    new_gen = txn.build_generation()
+
+    txn.install_to_generation(
+        generation: new_gen,
+        callback=install_callback
+    ).unwarp_or_else(|err| {
+	txn.abort();
+    });
+
+    txn.activate(new_gen)
+    txn.finalize()
+
 
 
 install_callback(package_name: String, progress: u8):
