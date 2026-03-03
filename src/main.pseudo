@@ -1,4 +1,4 @@
-main:
+main():
 	args = get_args()
 	
 	if args[1] == "install":
