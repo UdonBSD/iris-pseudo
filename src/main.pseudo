@@ -1,0 +1,17 @@
+main:
+	args = get_args()
+	
+	if args[1] == "install":
+		options = parse_install_option(args[2..]);
+		install(options);
+	if args[1] == "remove":
+		options = parse_remove_option(args[2..]);
+		remove(options);
+	else:
+		exit();
+
+
+
+
+
+

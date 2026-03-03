@@ -1,0 +1,36 @@
+install(options: InstallOptions):
+	install_packages = options.packages;
+	verbose = options.verbose;
+
+	repositories = "/etc/iris/repos.toml"
+	
+	libiris.packages.download(
+		packages: install_packages,
+		repository_file: repositories,
+		download_callback: download_callback,
+	);
+	
+
+	new_generation = libiris.generation.new(
+		old_generation: iris.generation.get_current(),
+	);
+
+	libiris.packages.install(
+		target_generation: new_generation,
+		packages: install_packages,
+		install_callback: install_callback,
+	);
+
+	libiris.generation.switch(
+		generation: new_generation,
+	);
+
+
+install_callback(package_name: String, progress: u8):
+	print("Installing: {}: {}%", package_name, progress);
+	
+
+
+
+download_callback(package_name: String, progress: u8):
+	print("Donloading {}: {}%", package_name, progress);
